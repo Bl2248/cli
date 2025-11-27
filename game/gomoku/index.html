@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五子棋游戏</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link rel="stylesheet" href="Gomoku.scss">
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const BOARD_SIZE = 15;
+        const EMPTY = 0;
+        const BLACK = 1;
+        const WHITE = 2;
+
+        const Gomoku = () => {
+          const [board, setBoard] = useState(() => 
+            Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(EMPTY))
+          );
+          const [currentPlayer, setCurrentPlayer] = useState(BLACK);
+          const [winner, setWinner] = useState(null);
+          const [winningLine, setWinningLine] = useState([]);
+
+          const checkWinner = (board, row, col, player) => {
+            const directions = [
+              [[0, 1], [0, -1]],  // 水平
+              [[1, 0], [-1, 0]],  // 垂直
+              [[1, 1], [-1, -1]], // 对角线
+              [[1, -1], [-1, 1]]  // 反对角线
+            ];
+
+            for (const direction of directions) {
+              const line = [[row, col]];
+              let count = 1;
+
+              for (const [dr, dc] of direction) {
+                let r = row + dr;
+                let c = col + dc;
+                
+                while (
+                  r >= 0 && r < BOARD_SIZE && 
+                  c >= 0 && c < BOARD_SIZE && 
+                  board[r][c] === player
+                ) {
+                  line.push([r, c]);
+                  count++;
+                  r += dr;
+                  c += dc;
+                }
+              }
+
+              if (count >= 5) {
+                return { winner: player, line };
+              }
+            }
+
+            return { winner: null, line: [] };
+          };
+
+          const handleCellClick = (row, col) => {
+            if (board[row][col] !== EMPTY || winner) {
+              return;
+            }
+
+            const newBoard = board.map(r => [...r]);
+            newBoard[row][col] = currentPlayer;
+            setBoard(newBoard);
+
+            const { winner: gameWinner, line } = checkWinner(newBoard, row, col, currentPlayer);
+            
+            if (gameWinner) {
+              setWinner(gameWinner);
+              setWinningLine(line);
+            } else {
+              setCurrentPlayer(currentPlayer === BLACK ? WHITE : BLACK);
+            }
+          };
+
+          const resetGame = () => {
+            setBoard(Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(EMPTY)));
+            setCurrentPlayer(BLACK);
+            setWinner(null);
+            setWinningLine([]);
+          };
+
+          const isWinningCell = (row, col) => {
+            return winningLine.some(([r, c]) => r === row && c === col);
+          };
+
+          return (
+            <div className="gomoku-game">
+              <div className="game-header">
+                <h1>五子棋</h1>
+                <div className="game-info">
+                  {!winner ? (
+                    <div className="current-player">
+                      当前玩家: 
+                      <span className={`player-stone ${currentPlayer === BLACK ? 'black' : 'white'}`} />
+                      <span className="player-name">{currentPlayer === BLACK ? '黑棋' : '白棋'}</span>
+                    </div>
+                  ) : (
+                    <div className="winner-info">
+                      <span className="winner-text">
+                        {winner === BLACK ? '黑棋' : '白棋'}获胜！
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <button className="reset-button" onClick={resetGame}>
+                  重新开始
+                </button>
+              </div>
+
+              <div className="board-container">
+                <div className="board">
+                  {board.map((row, rowIndex) => (
+                    <div key={rowIndex} className="board-row">
+                      {row.map((cell, colIndex) => (
+                        <div
+                          key={`${rowIndex}-${colIndex}`}
+                          className={`board-cell ${
+                            cell === BLACK ? 'black' : cell === WHITE ? 'white' : ''
+                          } ${isWinningCell(rowIndex, colIndex) ? 'winning' : ''}`}
+                          onClick={() => handleCellClick(rowIndex, colIndex)}
+                        >
+                          {cell !== EMPTY && (
+                            <div className={`stone ${cell === BLACK ? 'black' : 'white'}`} />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="game-rules">
+                <h3>游戏规则</h3>
+                <ul>
+                  <li>黑棋先行，双方轮流在棋盘上落子</li>
+                  <li>先将五颗棋子连成一线（横、竖、斜均可）的一方获胜</li>
+                  <li>点击"重新开始"可以开始新游戏</li>
+                </ul>
+              </div>
+            </div>
+          );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<Gomoku />);
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            min-height: 100vh;
+        }
+
+        .gomoku-game {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .game-header h1 {
+            color: #5d4037;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-info {
+            margin: 20px 0;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .current-player {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #5d4037;
+        }
+
+        .player-stone {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #5d4037;
+        }
+
+        .player-stone.black {
+            background-color: #222;
+        }
+
+        .player-stone.white {
+            background-color: #fff;
+        }
+
+        .winner-info .winner-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ff6f00;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .reset-button {
+            background: linear-gradient(135deg, #5d4037 0%, #8d6e63 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .reset-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .board-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .board {
+            display: inline-block;
+            background-color: #f0d9b5;
+            border: 3px solid #8b4513;
+            border-radius: 4px;
+            padding: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .board-row {
+            display: flex;
+        }
+
+        .board-cell {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #8b4513;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .board-cell:hover {
+            background-color: rgba(139, 69, 19, 0.1);
+        }
+
+        .board-cell:first-child {
+            border-left: 2px solid #8b4513;
+        }
+
+        .board-cell:last-child {
+            border-right: 2px solid #8b4513;
+        }
+
+        .board-row:first-child .board-cell {
+            border-top: 2px solid #8b4513;
+        }
+
+        .board-row:last-child .board-cell {
+            border-bottom: 2px solid #8b4513;
+        }
+
+        .stone {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+            z-index: 2;
+        }
+
+        .stone.black {
+            background: radial-gradient(circle at 30% 30%, #555, #222);
+            border: 1px solid #000;
+        }
+
+        .stone.white {
+            background: radial-gradient(circle at 30% 30%, #fff, #ddd);
+            border: 1px solid #ccc;
+        }
+
+        .board-cell.winning .stone {
+            box-shadow: 0 0 15px #ff6f00, 0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .game-rules {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-rules h3 {
+            color: #5d4037;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .game-rules ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .game-rules li {
+            padding: 5px 0;
+            color: #666;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .game-rules li:before {
+            content: "•";
+            color: #ff6f00;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        @keyframes placeStone {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .board-cell .stone {
+            animation: placeStone 0.3s ease-out;
+        }
+
+        @media (max-width: 768px) {
+            .gomoku-game {
+                padding: 10px;
+            }
+
+            .game-header h1 {
+                font-size: 2rem;
+            }
+
+            .board-container .board {
+                padding: 10px;
+            }
+
+            .board-cell {
+                width: 30px;
+                height: 30px;
+            }
+
+            .stone {
+                width: 22px;
+                height: 22px;
+            }
+        }
+    </style>
+</body>
+</html>
