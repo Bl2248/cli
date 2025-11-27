@@ -1,0 +1,284 @@
+$board-size: 15;
+$cell-size: 36px;
+$board-bg: #e8c78a;
+$board-line: #5c3d0d;
+$black-stone: #222;
+$white-stone: #f5f5f5;
+$shadow: rgba(0, 0, 0, 0.3);
+$winning-glow: #ffeb3b;
+
+.gomoku-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+  box-sizing: border-box;
+
+  .game-header {
+    text-align: center;
+    margin-bottom: 30px;
+    background: white;
+    padding: 25px 40px;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+
+    h1 {
+      margin: 0 0 20px 0;
+      color: #2c3e50;
+      font-size: 2.5em;
+      font-weight: 700;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .game-info {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 25px;
+      flex-wrap: wrap;
+
+      .current-player, .winner-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 1.2em;
+        font-weight: 500;
+        padding: 10px 20px;
+        border-radius: 25px;
+        background: #f8f9fa;
+
+        .player-stone {
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          border: 2px solid #333;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          transition: transform 0.2s ease;
+
+          &.black {
+            background: radial-gradient(circle at 30% 30%, #555, $black-stone);
+          }
+
+          &.white {
+            background: radial-gradient(circle at 30% 30%, #fff, $white-stone);
+          }
+
+          &:hover {
+            transform: scale(1.1);
+          }
+        }
+
+        .player-name, .winner-name {
+          color: #2c3e50;
+          font-weight: 600;
+        }
+      }
+
+      .winner-info {
+        background: linear-gradient(45deg, #fff3cd, #ffeaa7);
+        border: 2px solid #ffc107;
+
+        .winner-name {
+          color: #856404;
+        }
+      }
+
+      .reset-button {
+        padding: 12px 24px;
+        font-size: 1em;
+        font-weight: 600;
+        color: white;
+        background: linear-gradient(45deg, #3498db, #2980b9);
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+
+        &:hover {
+          background: linear-gradient(45deg, #2980b9, #2573a7);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        &:active {
+          transform: translateY(0);
+          box-shadow: 0 2px 10px rgba(52, 152, 219, 0.3);
+        }
+      }
+    }
+  }
+
+  .board-container {
+    background: $board-bg;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 
+      0 10px 30px rgba(0, 0, 0, 0.3),
+      inset 0 0 15px rgba(0, 0, 0, 0.1);
+    border: 3px solid #8b6f47;
+
+    .board {
+      display: inline-block;
+      background: $board-bg;
+      border: 2px solid $board-line;
+      position: relative;
+
+      .board-row {
+        display: flex;
+
+        .cell {
+          width: $cell-size;
+          height: $cell-size;
+          border: 1px solid $board-line;
+          position: relative;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          background: $board-bg;
+
+          &:hover:not(.occupied) {
+            background: rgba(255, 255, 255, 0.3);
+          }
+
+          &.occupied {
+            cursor: not-allowed;
+          }
+
+          &.winning {
+            background: rgba($winning-glow, 0.4);
+            animation: pulse 1s infinite;
+
+            @keyframes pulse {
+              0%, 100% { 
+                background: rgba($winning-glow, 0.4);
+              }
+              50% { 
+                background: rgba($winning-glow, 0.7);
+              }
+            }
+          }
+
+          .stone {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1px solid #333;
+            transition: all 0.3s ease;
+            z-index: 2;
+            animation: placeStone 0.3s ease-out;
+
+            @keyframes placeStone {
+              0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0;
+              }
+              100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+              }
+            }
+
+            &.black {
+              background: radial-gradient(circle at 30% 30%, #666, $black-stone);
+              box-shadow: 
+                2px 2px 4px rgba(0, 0, 0, 0.5),
+                inset -1px -1px 2px rgba(255, 255, 255, 0.1);
+            }
+
+            &.white {
+              background: radial-gradient(circle at 30% 30%, #fff, $white-stone);
+              box-shadow: 
+                2px 2px 4px rgba(0, 0, 0, 0.3),
+                inset -1px -1px 2px rgba(0, 0, 0, 0.1);
+            }
+
+            &:hover {
+              transform: translate(-50%, -50%) scale(1.05);
+            }
+          }
+
+          @for $i from 1 through $board-size {
+            &:nth-child(#{$i}) {
+              border-left: if($i == 1, 2px, 1px) solid $board-line;
+              border-right: if($i == $board-size, 2px, 1px) solid $board-line;
+            }
+          }
+        }
+
+        &:first-child .cell {
+          border-top: 2px solid $board-line;
+        }
+
+        &:last-child .cell {
+          border-bottom: 2px solid $board-line;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .gomoku-container {
+    padding: 10px;
+
+    .game-header {
+      padding: 15px 20px;
+
+      h1 {
+        font-size: 2em;
+        margin-bottom: 15px;
+      }
+
+      .game-info {
+        flex-direction: column;
+        gap: 15px;
+
+        .current-player, .winner-info {
+          font-size: 1em;
+          padding: 8px 16px;
+        }
+
+        .reset-button {
+          padding: 10px 20px;
+        }
+      }
+    }
+
+    .board-container {
+      padding: 15px;
+
+      .board {
+        .board-row .cell {
+          width: 28px;
+          height: 28px;
+
+          .stone {
+            width: 22px;
+            height: 22px;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .gomoku-container {
+    .board-container .board .board-row .cell {
+      width: 24px;
+      height: 24px;
+
+      .stone {
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }
+}
