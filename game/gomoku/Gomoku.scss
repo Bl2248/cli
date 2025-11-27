@@ -1,0 +1,218 @@
+$board-size: 600px;
+$cell-count: 15;
+$cell-size: $board-size / $cell-count;
+$board-bg: #dcb35c;
+$grid-color: #333;
+$black-stone: #222;
+$white-stone: #fff;
+$winning-color: #ff6b6b;
+
+.gomoku-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: 'Arial', sans-serif;
+}
+
+.game-header {
+  text-align: center;
+  margin-bottom: 30px;
+  color: white;
+
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.game-info {
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  font-weight: bold;
+
+  .current-player, .winner {
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 25px;
+    backdrop-filter: blur(10px);
+  }
+}
+
+.player-black, .player-white {
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 15px;
+  margin: 0 5px;
+}
+
+.player-black {
+  background: $black-stone;
+  color: white;
+}
+
+.player-white {
+  background: $white-stone;
+  color: $black-stone;
+}
+
+.reset-button {
+  padding: 12px 30px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(238, 90, 36, 0.4);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(238, 90, 36, 0.6);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.board-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.board {
+  display: inline-block;
+  background: $board-bg;
+  border: 3px solid #8b4513;
+  border-radius: 5px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.board-row {
+  display: flex;
+}
+
+.cell {
+  width: $cell-size;
+  height: $cell-size;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 85%;
+    height: 85%;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+  }
+
+  &:hover::before {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  &.black::before {
+    background: $black-stone;
+    box-shadow: 
+      inset -2px -2px 4px rgba(0, 0, 0, 0.5),
+      inset 2px 2px 4px rgba(255, 255, 255, 0.1),
+      2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  &.white::before {
+    background: $white-stone;
+    box-shadow: 
+      inset -2px -2px 4px rgba(0, 0, 0, 0.1),
+      inset 2px 2px 4px rgba(255, 255, 255, 0.8),
+      2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  &.winning::before {
+    box-shadow: 
+      0 0 0 3px $winning-color,
+      inset -2px -2px 4px rgba(0, 0, 0, 0.3),
+      2px 2px 8px rgba(255, 107, 107, 0.5) !important;
+  }
+}
+
+.board {
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      $grid-color,
+      $grid-color 1px,
+      transparent 1px,
+      transparent $cell-size
+    ),
+    repeating-linear-gradient(
+      90deg,
+      $grid-color,
+      $grid-color 1px,
+      transparent 1px,
+      transparent $cell-size
+    );
+  background-position: $cell-size/2 $cell-size/2;
+  background-size: $cell-size $cell-size;
+}
+
+@media (max-width: 768px) {
+  $board-size: 90vw;
+  $cell-size: $board-size / $cell-count;
+
+  .gomoku-container {
+    padding: 10px;
+  }
+
+  .game-header h1 {
+    font-size: 2rem;
+  }
+
+  .board-container {
+    padding: 10px;
+  }
+
+  .cell {
+    width: $cell-size;
+    height: $cell-size;
+  }
+}
+
+@media (max-width: 480px) {
+  $board-size: 95vw;
+  $cell-size: $board-size / $cell-count;
+
+  .game-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .game-info {
+    font-size: 1rem;
+  }
+
+  .reset-button {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+
+  .cell {
+    width: $cell-size;
+    height: $cell-size;
+  }
+}
