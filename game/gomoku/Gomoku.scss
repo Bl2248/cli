@@ -1,0 +1,270 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+
+$board-size: 15;
+$cell-size: 36px;
+$board-bg: #f0d9b5;
+$board-line: #8b4513;
+$black-stone: #222;
+$white-stone: #fff;
+$shadow: rgba(0, 0, 0, 0.2);
+$primary-color: #5d4037;
+$accent-color: #ff6f00;
+
+* {
+  box-sizing: border-box;
+}
+
+.gomoku-game {
+  font-family: 'Noto Sans SC', sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  min-height: 100vh;
+
+  .game-header {
+    text-align: center;
+    margin-bottom: 30px;
+
+    h1 {
+      color: $primary-color;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .game-info {
+      margin: 20px 0;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .current-player {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1.2rem;
+        font-weight: 500;
+        color: $primary-color;
+
+        .player-stone {
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          border: 2px solid $primary-color;
+          transition: all 0.3s ease;
+
+          &.black {
+            background-color: $black-stone;
+          }
+
+          &.white {
+            background-color: $white-stone;
+          }
+        }
+
+        .player-name {
+          font-weight: 600;
+        }
+      }
+
+      .winner-info {
+        .winner-text {
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: $accent-color;
+          text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+      }
+    }
+
+    .reset-button {
+      background: linear-gradient(135deg, $primary-color 0%, #8d6e63 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: 500;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      &:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
+
+  .board-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+
+    .board {
+      display: inline-block;
+      background-color: $board-bg;
+      border: 3px solid $board-line;
+      border-radius: 4px;
+      padding: 20px;
+      box-shadow: 
+        0 10px 20px rgba(0, 0, 0, 0.1),
+        0 6px 6px rgba(0, 0, 0, 0.15),
+        inset 0 0 30px rgba(139, 69, 19, 0.1);
+
+      .board-row {
+        display: flex;
+
+        .board-cell {
+          width: $cell-size;
+          height: $cell-size;
+          border: 1px solid $board-line;
+          position: relative;
+          cursor: pointer;
+          transition: all 0.2s ease;
+
+          &:hover {
+            background-color: rgba(139, 69, 19, 0.1);
+          }
+
+          // 棋盘边缘的边框处理
+          &:first-child {
+            border-left: 2px solid $board-line;
+          }
+
+          &:last-child {
+            border-right: 2px solid $board-line;
+          }
+
+          .board-row &:first-child {
+            border-top: 2px solid $board-line;
+          }
+
+          .board-row &:last-child {
+            border-bottom: 2px solid $board-line;
+          }
+
+          // 棋子样式
+          .stone {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            box-shadow: 
+              0 2px 4px rgba(0, 0, 0, 0.3),
+              inset 0 1px 2px rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            z-index: 2;
+
+            &.black {
+              background: radial-gradient(circle at 30% 30%, #555, $black-stone);
+              border: 1px solid #000;
+            }
+
+            &.white {
+              background: radial-gradient(circle at 30% 30%, #fff, #ddd);
+              border: 1px solid #ccc;
+            }
+          }
+
+          // 获胜的棋子高亮
+          &.winning .stone {
+            box-shadow: 
+              0 0 15px $accent-color,
+              0 2px 4px rgba(0, 0, 0, 0.3),
+              inset 0 1px 2px rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%) scale(1.1);
+          }
+        }
+
+        .board-row:first-child .board-cell {
+          border-top: 2px solid $board-line;
+        }
+
+        .board-row:last-child .board-cell {
+          border-bottom: 2px solid $board-line;
+        }
+      }
+    }
+  }
+
+  .game-rules {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    h3 {
+      color: $primary-color;
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+
+      li {
+        padding: 5px 0;
+        color: #666;
+        position: relative;
+        padding-left: 20px;
+
+        &:before {
+          content: "•";
+          color: $accent-color;
+          font-weight: bold;
+          position: absolute;
+          left: 0;
+        }
+      }
+    }
+  }
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+  .gomoku-game {
+    padding: 10px;
+
+    .game-header h1 {
+      font-size: 2rem;
+    }
+
+    .board-container .board {
+      padding: 10px;
+    }
+  }
+}
+
+// 动画效果
+@keyframes placeStone {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+.board-cell .stone {
+  animation: placeStone 0.3s ease-out;
+}
