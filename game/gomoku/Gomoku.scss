@@ -1,0 +1,232 @@
+$board-size: 15;
+$cell-size: 36px;
+$board-bg: #e0b86a;
+$board-line: #333;
+$black-stone: #000;
+$white-stone: #fff;
+$winning-highlight: #ff6b6b;
+
+.gomoku-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  font-family: 'Microsoft YaHei', Arial, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  box-sizing: border-box;
+
+  .game-header {
+    text-align: center;
+    margin-bottom: 30px;
+    color: white;
+
+    h1 {
+      font-size: 2.5rem;
+      margin: 0 0 20px 0;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .game-info {
+      margin: 20px 0;
+      font-size: 1.2rem;
+
+      .current-player, .winner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      .player-indicator {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+        &.black {
+          background: linear-gradient(45deg, #333, #000);
+          color: white;
+        }
+
+        &.white {
+          background: linear-gradient(45deg, #fff, #f0f0f0);
+          color: #333;
+        }
+      }
+    }
+
+    .reset-button {
+      background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1rem;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+      }
+
+      &:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+    }
+  }
+
+  .board-container {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+  }
+
+  .board {
+    display: inline-block;
+    background: $board-bg;
+    border: 2px solid $board-line;
+    border-radius: 8px;
+    padding: 2px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .board-row {
+    display: flex;
+  }
+
+  .cell {
+    width: $cell-size;
+    height: $cell-size;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover:not(.occupied) {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      background: $board-line;
+    }
+
+    &::before {
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      transform: translateY(-50%);
+    }
+
+    &::after {
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      transform: translateX(-50%);
+    }
+
+    &:first-child::before {
+      left: 50%;
+    }
+
+    &:last-child::before {
+      right: 50%;
+    }
+
+    &:first-child::after {
+      top: 50%;
+    }
+
+    &:last-child::after {
+      bottom: 50%;
+    }
+
+    .stone {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: $cell-size * 0.8;
+      height: $cell-size * 0.8;
+      border-radius: 50%;
+      box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      z-index: 2;
+
+      &.black {
+        background: radial-gradient(circle at 30% 30%, #555, #000);
+        border: 1px solid #333;
+      }
+
+      &.white {
+        background: radial-gradient(circle at 30% 30%, #fff, #ddd);
+        border: 1px solid #ccc;
+      }
+
+      .winning-mark {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 60%;
+        height: 60%;
+        background: $winning-highlight;
+        border-radius: 50%;
+        opacity: 0.6;
+        animation: pulse 1s infinite;
+      }
+    }
+
+    &.winning .stone {
+      animation: winning-glow 1s infinite alternate;
+    }
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.6;
+  }
+}
+
+@keyframes winning-glow {
+  0% {
+    box-shadow: 0 0 10px $winning-highlight;
+  }
+  100% {
+    box-shadow: 0 0 20px $winning-highlight, 0 0 30px $winning-highlight;
+  }
+}
+
+@media (max-width: 768px) {
+  .gomoku-container {
+    padding: 10px;
+
+    .game-header h1 {
+      font-size: 2rem;
+    }
+
+    .board-container {
+      padding: 10px;
+    }
+  }
+}
