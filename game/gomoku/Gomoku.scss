@@ -1,0 +1,280 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.gomoku-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+.game-header {
+  text-align: center;
+  margin-bottom: 30px;
+
+  h1 {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.game-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.player-display {
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 25px;
+  background: #3498db;
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+
+  &.winner {
+    background: #e74c3c;
+    animation: pulse 1s infinite;
+  }
+}
+
+.reset-button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: white;
+  background: #27ae60;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #229954;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.board-container {
+  background: #d4a574;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  margin-bottom: 30px;
+}
+
+.board {
+  display: inline-block;
+  background: #deb887;
+  border: 2px solid #8b6914;
+  position: relative;
+}
+
+.board-row {
+  display: flex;
+}
+
+.cell {
+  width: 30px;
+  height: 30px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  // 棋盘网格线
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    background: #5d4037;
+  }
+
+  // 水平线
+  &::before {
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    transform: translateY(-50%);
+  }
+
+  // 垂直线
+  &::after {
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    transform: translateX(-50%);
+  }
+
+  // 移除边缘的线
+  &:first-child::before {
+    left: 50%;
+  }
+
+  &:last-child::before {
+    right: 50%;
+  }
+
+  &:first-child::after {
+    top: 50%;
+  }
+
+  &:last-child::after {
+    bottom: 50%;
+  }
+
+  // 棋子样式
+  &.black::before,
+  &.white::before {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  &.black::before {
+    background: radial-gradient(circle at 30% 30%, #4a4a4a, #000000);
+  }
+
+  &.white::before {
+    background: radial-gradient(circle at 30% 30%, #ffffff, #e0e0e0);
+  }
+
+  // 获胜棋子的高亮效果
+  &.winning::before {
+    animation: winningPulse 1s infinite;
+    box-shadow: 0 0 10px 3px rgba(255, 215, 0, 0.8);
+  }
+}
+
+.game-rules {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+
+  h3 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-size: 1.3rem;
+  }
+
+  ul {
+    list-style-position: inside;
+    color: #34495e;
+    line-height: 1.6;
+
+    li {
+      margin-bottom: 5px;
+    }
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes winningPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+  .gomoku-container {
+    padding: 10px;
+  }
+
+  .game-header h1 {
+    font-size: 2rem;
+  }
+
+  .cell {
+    width: 25px;
+    height: 25px;
+  }
+
+  .cell.black::before,
+  .cell.white::before {
+    width: 20px;
+    height: 20px;
+  }
+
+  .game-info {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .game-rules {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .cell {
+    width: 20px;
+    height: 20px;
+  }
+
+  .cell.black::before,
+  .cell.white::before {
+    width: 16px;
+    height: 16px;
+  }
+
+  .player-display {
+    font-size: 1rem;
+    padding: 8px 16px;
+  }
+
+  .reset-button {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+}
