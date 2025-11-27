@@ -1,0 +1,179 @@
+$board-size: 600px;
+$cell-count: 15;
+$cell-size: $board-size / $cell-count;
+$board-bg: #deb887;
+$line-color: #8b4513;
+$black-stone: #000000;
+$white-stone: #ffffff;
+$winning-bg: #ffeb3b;
+
+.gomoku-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.game-header {
+  text-align: center;
+  margin-bottom: 30px;
+  color: white;
+
+  h1 {
+    font-size: 2.5em;
+    margin: 0 0 20px 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.game-info {
+  margin-bottom: 20px;
+  font-size: 1.2em;
+
+  .current-player, .winner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+}
+
+.player-stone {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-block;
+  border: 2px solid #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+
+  &.black {
+    background-color: $black-stone;
+  }
+
+  &.white {
+    background-color: $white-stone;
+  }
+}
+
+.reset-btn {
+  padding: 12px 24px;
+  font-size: 1em;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.board {
+  display: flex;
+  flex-direction: column;
+  width: $board-size;
+  height: $board-size;
+  background-color: $board-bg;
+  border: 3px solid $line-color;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      repeating-linear-gradient(0deg, $line-color, $line-color 1px, transparent 1px, transparent $cell-size),
+      repeating-linear-gradient(90deg, $line-color, $line-color 1px, transparent 1px, transparent $cell-size);
+    pointer-events: none;
+  }
+}
+
+.board-row {
+  display: flex;
+  flex: 1;
+}
+
+.cell {
+  flex: 1;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  &.black::after,
+  &.white::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: $cell-size * 0.8;
+    height: $cell-size * 0.8;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    z-index: 1;
+  }
+
+  &.black::after {
+    background-color: $black-stone;
+  }
+
+  &.white::after {
+    background-color: $white-stone;
+  }
+
+  &.winning {
+    background-color: $winning-bg !important;
+    
+    &::after {
+      box-shadow: 0 0 10px rgba(255, 235, 59, 0.8), 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .gomoku-container {
+    padding: 10px;
+  }
+
+  .game-header h1 {
+    font-size: 2em;
+  }
+
+  $board-size: 90vw;
+  $cell-size: $board-size / $cell-count;
+
+  .board {
+    width: $board-size;
+    height: $board-size;
+  }
+
+  .cell {
+    &.black::after,
+    &.white::after {
+      width: $cell-size * 0.7;
+      height: $cell-size * 0.7;
+    }
+  }
+}
