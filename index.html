@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>五子棋游戏</title>
+  <link rel="stylesheet" href="game/gomoku/Gomoku.css">
+</head>
+<body>
+  <div id="root"></div>
+  
+  <!-- React 和 ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
+  <!-- Babel (用于转换JSX) -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <!-- 游戏组件 -->
+  <script type="text/babel" src="game/gomoku/Gomoku.jsx"></script>
+  
+  <script type="text/babel">
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<Gomoku />);
+  </script>
+</body>
+</html>

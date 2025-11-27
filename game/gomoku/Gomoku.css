@@ -1,0 +1,245 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+.gomoku-game {
+  font-family: 'Noto Sans SC', sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  min-height: 100vh;
+}
+
+.gomoku-game .game-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.gomoku-game .game-header h1 {
+  color: #5d4037;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.gomoku-game .game-header .game-info {
+  margin: 20px 0;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gomoku-game .game-header .game-info .current-player {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #5d4037;
+}
+
+.gomoku-game .game-header .game-info .current-player .player-stone {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid #5d4037;
+  transition: all 0.3s ease;
+}
+
+.gomoku-game .game-header .game-info .current-player .player-stone.black {
+  background-color: #222;
+}
+
+.gomoku-game .game-header .game-info .current-player .player-stone.white {
+  background-color: #fff;
+}
+
+.gomoku-game .game-header .game-info .current-player .player-name {
+  font-weight: 600;
+}
+
+.gomoku-game .game-header .game-info .winner-info .winner-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ff6f00;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.gomoku-game .game-header .reset-button {
+  background: linear-gradient(135deg, #5d4037 0%, #8d6e63 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.gomoku-game .game-header .reset-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.gomoku-game .game-header .reset-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.gomoku-game .board-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.gomoku-game .board-container .board {
+  display: inline-block;
+  background-color: #f0d9b5;
+  border: 3px solid #8b4513;
+  border-radius: 4px;
+  padding: 20px;
+  box-shadow: 
+    0 10px 20px rgba(0, 0, 0, 0.1),
+    0 6px 6px rgba(0, 0, 0, 0.15),
+    inset 0 0 30px rgba(139, 69, 19, 0.1);
+}
+
+.gomoku-game .board-container .board .board-row {
+  display: flex;
+}
+
+.gomoku-game .board-container .board .board-row .board-cell {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #8b4513;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.gomoku-game .board-container .board .board-row .board-cell:hover {
+  background-color: rgba(139, 69, 19, 0.1);
+}
+
+.gomoku-game .board-container .board .board-row .board-cell:first-child {
+  border-left: 2px solid #8b4513;
+}
+
+.gomoku-game .board-container .board .board-row .board-cell:last-child {
+  border-right: 2px solid #8b4513;
+}
+
+.gomoku-game .board-container .board .board-row:first-child .board-cell {
+  border-top: 2px solid #8b4513;
+}
+
+.gomoku-game .board-container .board .board-row:last-child .board-cell {
+  border-bottom: 2px solid #8b4513;
+}
+
+.gomoku-game .board-container .board .board-row .board-cell .stone {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+.gomoku-game .board-container .board .board-row .board-cell .stone.black {
+  background: radial-gradient(circle at 30% 30%, #555, #222);
+  border: 1px solid #000;
+}
+
+.gomoku-game .board-container .board .board-row .board-cell .stone.white {
+  background: radial-gradient(circle at 30% 30%, #fff, #ddd);
+  border: 1px solid #ccc;
+}
+
+.gomoku-game .board-container .board .board-row .board-cell.winning .stone {
+  box-shadow: 
+    0 0 15px #ff6f00,
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.gomoku-game .game-rules {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.gomoku-game .game-rules h3 {
+  color: #5d4037;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.gomoku-game .game-rules ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.gomoku-game .game-rules ul li {
+  padding: 5px 0;
+  color: #666;
+  position: relative;
+  padding-left: 20px;
+}
+
+.gomoku-game .game-rules ul li:before {
+  content: "•";
+  color: #ff6f00;
+  font-weight: bold;
+  position: absolute;
+  left: 0;
+}
+
+@media (max-width: 768px) {
+  .gomoku-game {
+    padding: 10px;
+  }
+
+  .gomoku-game .game-header h1 {
+    font-size: 2rem;
+  }
+
+  .gomoku-game .board-container .board {
+    padding: 10px;
+  }
+}
+
+@keyframes placeStone {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+.board-cell .stone {
+  animation: placeStone 0.3s ease-out;
+}
