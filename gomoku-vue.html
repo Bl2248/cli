@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue 五子棋游戏</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #app {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .game-info {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .current-player {
+            color: #2196F3;
+        }
+
+        .winner {
+            color: #4CAF50;
+        }
+
+        .board-container {
+            background-color: #DEB887;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(15, 35px);
+            grid-template-rows: repeat(15, 35px);
+            gap: 0;
+            background-color: #DEB887;
+            border: 3px solid #8B4513;
+            position: relative;
+        }
+
+        .cell {
+            width: 35px;
+            height: 35px;
+            border: 1px solid #8B4513;
+            position: relative;
+            cursor: pointer;
+            background-color: #DEB887;
+            transition: background-color 0.2s;
+        }
+
+        .cell:hover:not(.occupied) {
+            background-color: #D2B48C;
+        }
+
+        .piece {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            animation: placePiece 0.3s ease-out;
+        }
+
+        @keyframes placePiece {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .black {
+            background-color: #000;
+        }
+
+        .white {
+            background-color: #fff;
+            border: 2px solid #ccc;
+        }
+
+        .controls {
+            margin-top: 25px;
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .restart-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .restart-btn:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .reset-btn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .reset-btn:hover {
+            background-color: #da190b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .move-history {
+            margin-top: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            max-width: 500px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .move-history h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .move-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        .move-item {
+            background: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>Vue 五子棋游戏</h1>
+        
+        <div class="game-info">
+            <span>当前玩家: </span>
+            <span :class="gameOver ? 'winner' : 'current-player'">
+                {{ gameStatus }}
+            </span>
+        </div>
+
+        <div class="board-container">
+            <div class="board">
+                <div 
+                    v-for="(cell, index) in board.flat()" 
+                    :key="index"
+                    class="cell"
+                    :class="{ occupied: cell !== null }"
+                    :data-row="Math.floor(index / BOARD_SIZE)"
+                    :data-col="index % BOARD_SIZE"
+                    @click="handleCellClick(Math.floor(index / BOARD_SIZE), index % BOARD_SIZE)"
+                >
+                    <div 
+                        v-if="cell !== null" 
+                        class="piece" 
+                        :class="cell"
+                    ></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="restart-btn" @click="restartGame">重新开始</button>
+            <button class="reset-btn" @click="resetGame">清除棋盘</button>
+        </div>
+
+        <div class="move-history" v-if="moveHistory.length > 0">
+            <h3>落子记录</h3>
+            <div class="move-list">
+                <div 
+                    v-for="(move, index) in moveHistory" 
+                    :key="index"
+                    class="move-item"
+                >
+                    {{ index + 1 }}. {{ move.player === 'black' ? '黑棋' : '白棋' }} 
+                    ({{ move.row + 1 }}, {{ move.col + 1 }})
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    BOARD_SIZE: 15,
+                    board: [],
+                    currentPlayer: 'black',
+                    gameOver: false,
+                    moveHistory: []
+                };
+            },
+            
+            computed: {
+                gameStatus() {
+                    if (this.gameOver) {
+                        const winner = this.currentPlayer === 'black' ? '黑棋' : '白棋';
+                        return `${winner}获胜！`;
+                    }
+                    return this.currentPlayer === 'black' ? '黑棋' : '白棋';
+                }
+            },
+            
+            methods: {
+                initBoard() {
+                    this.board = Array(this.BOARD_SIZE).fill(null)
+                        .map(() => Array(this.BOARD_SIZE).fill(null));
+                    this.currentPlayer = 'black';
+                    this.gameOver = false;
+                    this.moveHistory = [];
+                },
+
+                handleCellClick(row, col) {
+                    if (this.gameOver || this.board[row][col] !== null) {
+                        return;
+                    }
+
+                    this.placePiece(row, col);
+                    
+                    if (this.checkWin(row, col)) {
+                        this.endGame();
+                    } else {
+                        this.switchPlayer();
+                    }
+                },
+
+                placePiece(row, col) {
+                    this.board[row][col] = this.currentPlayer;
+                    this.moveHistory.push({
+                        player: this.currentPlayer,
+                        row: row,
+                        col: col
+                    });
+                },
+
+                switchPlayer() {
+                    this.currentPlayer = this.currentPlayer === 'black' ? 'white' : 'black';
+                },
+
+                checkWin(row, col) {
+                    const directions = [
+                        [[0, 1], [0, -1]],
+                        [[1, 0], [-1, 0]],
+                        [[1, 1], [-1, -1]],
+                        [[1, -1], [-1, 1]]
+                    ];
+
+                    for (const direction of directions) {
+                        let count = 1;
+                        
+                        for (const [dr, dc] of direction) {
+                            let r = row + dr;
+                            let c = col + dc;
+                            
+                            while (r >= 0 && r < this.BOARD_SIZE && 
+                                   c >= 0 && c < this.BOARD_SIZE && 
+                                   this.board[r][c] === this.currentPlayer) {
+                                count++;
+                                r += dr;
+                                c += dc;
+                            }
+                        }
+                        
+                        if (count >= 5) {
+                            return true;
+                        }
+                    }
+                    
+                    return false;
+                },
+
+                endGame() {
+                    this.gameOver = true;
+                },
+
+                restartGame() {
+                    this.initBoard();
+                },
+
+                resetGame() {
+                    if (confirm('确定要清除棋盘重新开始吗？')) {
+                        this.restartGame();
+                    }
+                }
+            },
+            
+            mounted() {
+                this.initBoard();
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
