@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>五子棋</title>
+<style>
+body {
+    margin: 0;
+    padding: 20px;
+    background: #f0f0f0;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.board {
+    display: inline-block;
+    background: #deb887;
+    border: 2px solid #8b7355;
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.row {
+    display: flex;
+}
+
+.cell {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #8b7355;
+    cursor: pointer;
+    position: relative;
+    background: #deb887;
+}
+
+.cell:hover {
+    background: #d2b48c;
+}
+
+.piece {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.black {
+    background: #000;
+}
+
+.white {
+    background: #fff;
+    border: 1px solid #333;
+}
+
+.controls {
+    margin-top: 20px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 0 5px;
+}
+
+button:hover {
+    background: #45a049;
+}
+
+.status {
+    margin: 15px 0;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.black-turn {
+    color: #000;
+}
+
+.white-turn {
+    color: #333;
+}
+
+.winner {
+    color: #4CAF50;
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>五子棋</h1>
+    <div class="status" id="status">黑方先行</div>
+    <div class="board" id="board"></div>
+    <div class="controls">
+        <button onclick="resetGame()">重新开始</button>
+    </div>
+</div>
+
+<script>
+const BOARD_SIZE = 15;
+let board = [];
+let currentPlayer = 'black';
+let gameOver = false;
+
+function initBoard() {
+    board = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null));
+    const boardElement = document.getElementById('board');
+    boardElement.innerHTML = '';
+    
+    for (let i = 0; i < BOARD_SIZE; i++) {
+        const row = document.createElement('div');
+        row.className = 'row';
+        
+        for (let j = 0; j < BOARD_SIZE; j++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.dataset.row = i;
+            cell.dataset.col = j;
+            cell.onclick = () => placePiece(i, j);
+            row.appendChild(cell);
+        }
+        
+        boardElement.appendChild(row);
+    }
+}
+
+function placePiece(row, col) {
+    if (gameOver || board[row][col]) return;
+    
+    board[row][col] = currentPlayer;
+    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+    const piece = document.createElement('div');
+    piece.className = `piece ${currentPlayer}`;
+    cell.appendChild(piece);
+    
+    if (checkWin(row, col)) {
+        document.getElementById('status').textContent = `${currentPlayer === 'black' ? '黑方' : '白方'}获胜！`;
+        document.getElementById('status').className = 'status winner';
+        gameOver = true;
+        return;
+    }
+    
+    currentPlayer = currentPlayer === 'black' ? 'white' : 'black';
+    updateStatus();
+}
+
+function checkWin(row, col) {
+    const directions = [
+        [[0, 1], [0, -1]],
+        [[1, 0], [-1, 0]],
+        [[1, 1], [-1, -1]],
+        [[1, -1], [-1, 1]]
+    ];
+    
+    for (const direction of directions) {
+        let count = 1;
+        
+        for (const [dr, dc] of direction) {
+            let r = row + dr;
+            let c = col + dc;
+            
+            while (r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE && board[r][c] === currentPlayer) {
+                count++;
+                r += dr;
+                c += dc;
+            }
+        }
+        
+        if (count >= 5) return true;
+    }
+    
+    return false;
+}
+
+function updateStatus() {
+    const status = document.getElementById('status');
+    status.textContent = `${currentPlayer === 'black' ? '黑方' : '白方'}回合`;
+    status.className = `status ${currentPlayer}-turn`;
+}
+
+function resetGame() {
+    currentPlayer = 'black';
+    gameOver = false;
+    initBoard();
+    updateStatus();
+}
+
+initBoard();
+</script>
+</body>
+</html>
