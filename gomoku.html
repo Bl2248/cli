@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>五子棋</title>
+<style>
+body {
+    margin: 0;
+    padding: 20px;
+    background: #f0f0f0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    margin: 0 0 20px 0;
+    color: #333;
+}
+
+#board {
+    display: grid;
+    grid-template-columns: repeat(15, 30px);
+    grid-template-rows: repeat(15, 30px);
+    gap: 0;
+    background: #dcb35c;
+    border: 2px solid #8b6914;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.cell {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #000;
+    position: relative;
+    cursor: pointer;
+}
+
+.cell::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #000;
+    z-index: 1;
+}
+
+.cell::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: #000;
+    z-index: 1;
+}
+
+.cell:nth-child(15n+1)::before {
+    left: 50%;
+}
+
+.cell:nth-child(-n+15)::after {
+    top: 50%;
+}
+
+.cell:nth-child(15n)::before {
+    right: 50%;
+}
+
+.cell:nth-child(n+211)::after {
+    bottom: 50%;
+}
+
+.stone {
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+
+.black {
+    background: radial-gradient(circle at 30% 30%, #666, #000);
+}
+
+.white {
+    background: radial-gradient(circle at 30% 30%, #fff, #ddd);
+}
+
+#status {
+    margin: 20px 0;
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background: #45a049;
+}
+</style>
+</head>
+<body>
+<h1>五子棋</h1>
+<div id="status">黑方回合</div>
+<div id="board"></div>
+<button onclick="resetGame()">重新开始</button>
+
+<script>
+const BOARD_SIZE = 15;
+let board = [];
+let currentPlayer = 'black';
+let gameOver = false;
+
+function initBoard() {
+    const boardElement = document.getElementById('board');
+    boardElement.innerHTML = '';
+    board = [];
+    
+    for (let i = 0; i < BOARD_SIZE; i++) {
+        board[i] = [];
+        for (let j = 0; j < BOARD_SIZE; j++) {
+            board[i][j] = null;
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.dataset.row = i;
+            cell.dataset.col = j;
+            cell.onclick = () => placeStone(i, j);
+            boardElement.appendChild(cell);
+        }
+    }
+}
+
+function placeStone(row, col) {
+    if (gameOver || board[row][col]) return;
+    
+    board[row][col] = currentPlayer;
+    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+    const stone = document.createElement('div');
+    stone.className = `stone ${currentPlayer}`;
+    cell.appendChild(stone);
+    
+    if (checkWin(row, col)) {
+        document.getElementById('status').textContent = 
+            `${currentPlayer === 'black' ? '黑方' : '白方'}获胜！`;
+        gameOver = true;
+        return;
+    }
+    
+    currentPlayer = currentPlayer === 'black' ? 'white' : 'black';
+    document.getElementById('status').textContent = 
+        `${currentPlayer === 'black' ? '黑方' : '白方'}回合`;
+}
+
+function checkWin(row, col) {
+    const directions = [
+        [[0, 1], [0, -1]],
+        [[1, 0], [-1, 0]],
+        [[1, 1], [-1, -1]],
+        [[1, -1], [-1, 1]]
+    ];
+    
+    for (const direction of directions) {
+        let count = 1;
+        for (const [dr, dc] of direction) {
+            let r = row + dr, c = col + dc;
+            while (r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE && 
+                   board[r][c] === currentPlayer) {
+                count++;
+                r += dr;
+                c += dc;
+            }
+        }
+        if (count >= 5) return true;
+    }
+    return false;
+}
+
+function resetGame() {
+    currentPlayer = 'black';
+    gameOver = false;
+    document.getElementById('status').textContent = '黑方回合';
+    initBoard();
+}
+
+initBoard();
+</script>
+</body>
+</html>
