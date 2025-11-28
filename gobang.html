@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网页版五子棋</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .current-player {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .player-black {
+            color: #333;
+        }
+
+        .player-white {
+            color: #666;
+        }
+
+        .reset-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s;
+        }
+
+        .reset-btn:hover {
+            background: #764ba2;
+        }
+
+        .board-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(15, 1fr);
+            grid-template-rows: repeat(15, 1fr);
+            gap: 0;
+            width: 100%;
+            max-width: 450px;
+            aspect-ratio: 1;
+            background: #deb887;
+            border: 2px solid #8b4513;
+            position: relative;
+        }
+
+        .cell {
+            width: 100%;
+            height: 100%;
+            border: 1px solid #8b4513;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .cell:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .cell::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .cell:hover::before {
+            opacity: 0.3;
+        }
+
+        .cell.black:hover::before {
+            background-color: #333;
+        }
+
+        .cell.white:hover::before {
+            background-color: #fff;
+        }
+
+        .piece {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85%;
+            height: 85%;
+            border-radius: 50%;
+            z-index: 10;
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .piece.black {
+            background-color: #333;
+        }
+
+        .piece.white {
+            background-color: #fff;
+            border: 1px solid #ccc;
+        }
+
+        .game-status {
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            min-height: 40px;
+            color: #667eea;
+        }
+
+        .winner {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>五子棋</h1>
+        
+        <div class="game-info">
+            <div class="current-player player-black" id="currentPlayer">当前玩家：黑棋</div>
+            <button class="reset-btn" onclick="resetGame()">重新开始</button>
+        </div>
+        
+        <div class="board-container">
+            <div class="board" id="board"></div>
+        </div>
+        
+        <div class="game-status" id="gameStatus"></div>
+    </div>
+
+    <script>
+        const BOARD_SIZE = 15;
+        let board = [];
+        let currentPlayer = 'black';
+        let gameOver = false;
+
+        function initBoard() {
+            const boardElement = document.getElementById('board');
+            boardElement.innerHTML = '';
+            board = [];
+            
+            for (let row = 0; row < BOARD_SIZE; row++) {
+                board[row] = [];
+                for (let col = 0; col < BOARD_SIZE; col++) {
+                    board[row][col] = null;
+                    
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    cell.addEventListener('click', handleCellClick);
+                    
+                    boardElement.appendChild(cell);
+                }
+            }
+        }
+
+        function handleCellClick(event) {
+            if (gameOver) return;
+            
+            const row = parseInt(event.target.dataset.row);
+            const col = parseInt(event.target.dataset.col);
+            
+            if (board[row][col] !== null) return;
+            
+            placePiece(row, col, currentPlayer);
+            
+            if (checkWin(row, col, currentPlayer)) {
+                endGame(currentPlayer);
+            } else {
+                switchPlayer();
+            }
+        }
+
+        function placePiece(row, col, player) {
+            board[row][col] = player;
+            
+            const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+            const piece = document.createElement('div');
+            piece.className = `piece ${player}`;
+            cell.appendChild(piece);
+        }
+
+        function switchPlayer() {
+            currentPlayer = currentPlayer === 'black' ? 'white' : 'black';
+            const currentPlayerElement = document.getElementById('currentPlayer');
+            const playerText = currentPlayer === 'black' ? '黑棋' : '白棋';
+            const playerClass = currentPlayer === 'black' ? 'player-black' : 'player-white';
+            
+            currentPlayerElement.textContent = `当前玩家：${playerText}`;
+            currentPlayerElement.className = `current-player ${playerClass}`;
+        }
+
+        function checkWin(row, col, player) {
+            const directions = [
+                [[0, 1], [0, -1]],   // 横向
+                [[1, 0], [-1, 0]],   // 纵向
+                [[1, 1], [-1, -1]],  // 对角线（左上到右下）
+                [[1, -1], [-1, 1]]   // 对角线（右上到左下）
+            ];
+            
+            for (const direction of directions) {
+                let count = 1;
+                
+                for (const [dr, dc] of direction) {
+                    let r = row + dr;
+                    let c = col + dc;
+                    
+                    while (r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE && board[r][c] === player) {
+                        count++;
+                        r += dr;
+                        c += dc;
+                    }
+                }
+                
+                if (count >= 5) return true;
+            }
+            
+            return false;
+        }
+
+        function endGame(winner) {
+            gameOver = true;
+            const winnerText = winner === 'black' ? '黑棋' : '白棋';
+            const gameStatusElement = document.getElementById('gameStatus');
+            gameStatusElement.textContent = `${winnerText}获胜！`;
+            gameStatusElement.className = 'game-status winner';
+        }
+
+        function resetGame() {
+            currentPlayer = 'black';
+            gameOver = false;
+            
+            const currentPlayerElement = document.getElementById('currentPlayer');
+            currentPlayerElement.textContent = '当前玩家：黑棋';
+            currentPlayerElement.className = 'current-player player-black';
+            
+            const gameStatusElement = document.getElementById('gameStatus');
+            gameStatusElement.textContent = '';
+            gameStatusElement.className = 'game-status';
+            
+            initBoard();
+        }
+
+        // 初始化游戏
+        document.addEventListener('DOMContentLoaded', function() {
+            initBoard();
+        });
+    </script>
+</body>
+</html>
