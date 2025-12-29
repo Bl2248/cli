@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>双飞翼布局示例</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .container {
+            min-height: 400px;
+            margin-bottom: 20px;
+        }
+        
+        .main {
+            float: left;
+            width: 100%;
+            background-color: #f0f0f0;
+        }
+        
+        .main-content {
+            margin: 0 200px;
+            padding: 20px;
+            background-color: #e8e8e8;
+            min-height: 400px;
+        }
+        
+        .left {
+            float: left;
+            width: 200px;
+            margin-left: -100%;
+            background-color: #ffcccc;
+            padding: 20px;
+            min-height: 400px;
+        }
+        
+        .right {
+            float: left;
+            width: 200px;
+            margin-left: -200px;
+            background-color: #ccffcc;
+            padding: 20px;
+            min-height: 400px;
+        }
+        
+        .footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            clear: both;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-content {
+                margin: 0;
+            }
+            
+            .left, .right {
+                float: none;
+                width: 100%;
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>双飞翼布局示例</h1>
+        <p>中间自适应，两侧固定宽度的三栏布局</p>
+    </div>
+    
+    <div class="container">
+        <!-- 中间栏 -->
+        <div class="main">
+            <div class="main-content">
+                <h2>中间主内容区域</h2>
+                <p>这是页面的主要内容区域，宽度自适应。</p>
+                <p>双飞翼布局的核心思想是：</p>
+                <ul>
+                    <li>中间栏优先渲染（放在最前面）</li>
+                    <li>使用浮动和负边距实现三栏布局</li>
+                    <li>中间栏通过内边距为两侧栏留出空间</li>
+                </ul>
+                <p>这种布局方式相比圣杯布局更加稳定，不需要使用相对定位。</p>
+            </div>
+        </div>
+        
+        <!-- 左侧栏 -->
+        <div class="left">
+            <h3>左侧栏</h3>
+            <p>固定宽度：200px</p>
+            <ul>
+                <li>导航链接1</li>
+                <li>导航链接2</li>
+                <li>导航链接3</li>
+                <li>导航链接4</li>
+                <li>导航链接5</li>
+            </ul>
+        </div>
+        
+        <!-- 右侧栏 -->
+        <div class="right">
+            <h3>右侧栏</h3>
+            <p>固定宽度：200px</p>
+            <ul>
+                <li>相关内容1</li>
+                <li>相关内容2</li>
+                <li>相关内容3</li>
+                <li>相关内容4</li>
+                <li>相关内容5</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>页脚内容 - 双飞翼布局演示</p>
+    </div>
+</body>
+</html>
